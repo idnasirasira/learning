@@ -98,14 +98,27 @@
         var geocoder = new google.maps.Geocoder();
 
         $btnSubmit.addEventListener('click', function() {
-          handleGeocoderMaps(geocoder, map);
+          handleGeocoderMaps(geocoder, map, 2);
         });
 
         $inputAddress.addEventListener('keyup', function(e){
             if (e.keyCode == 13) {
               $btnSubmit.focus();
-              handleGeocoderMaps(geocoder, map);
+              handleGeocoderMaps(geocoder, map, 2);
             }
+        });
+
+        marker = new google.maps.Marker({
+          map: map,
+          draggable: true,
+        });
+
+        google.maps.event.addListener(marker, 'dragend', function() {
+
+          var draggerPosition = marker.getPosition();
+
+          handleGeocoderMaps(geocoder, map, 1, draggerPosition);
+
         });
 
         polygon = new google.maps.Polygon({
@@ -116,15 +129,24 @@
           fillColor: '#FF0000',
           fillOpacity: 0.35,
         });
+
         polygon.setMap(map);
 
       }
 
-      function handleGeocoderMaps(geocoder, resultsMap) {
+      function handleGeocoderMaps(geocoder, resultsMap, type, latLng = null) {
         
         var address = $inputAddress.value;
 
-        geocoder.geocode({'address': address}, function(results, status) {
+        if (type == 1) {
+          if (latLng != null) {
+            paramGeocode = {'location': latLng};
+          }
+        }else if(type == 2){
+          paramGeocode = {'address': address};
+        }
+
+        geocoder.geocode(paramGeocode, function(results, status) {
           if (status === 'OK') {
 
             resultsMap.setCenter(results[0].geometry.location);
@@ -134,15 +156,9 @@
             $txtAddress.innerHTML = results[0].formatted_address;
             $txtLatLang.innerHTML = results[0].geometry.location;
 
-            if (marker == null) {
-              marker = new google.maps.Marker({
-                map: resultsMap,
-                position: results[0].geometry.location
-              });
-            }else{
-              marker.setPosition(results[0].geometry.location);
-            }
-
+            
+            marker.setPosition(results[0].geometry.location);
+            
 
           } else {
             swal("Aww, Sorry!", "The address you were looking for was not found.", "error");
