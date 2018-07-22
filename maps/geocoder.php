@@ -39,6 +39,7 @@
         <div class="card col-md-6 m-1">
           <div class="card-body pt-5">
             <div class="col-md-12">
+              <label>Search Address : </label>
               <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Address" aria-label="Address" aria-describedby="button-addon2" id="address">
                 <div class="input-group-append">
@@ -51,6 +52,7 @@
 
         <div class="card col-md m-1">
           <div class="card-body pt-5">
+            <div class="col-md-12 text-center"><label>Result</label></div>
             <div class="col-md-12">
               <label>Address : </label>
               <p id="text-address"></p>    
@@ -77,26 +79,38 @@
     <script type="text/javascript" src="coordinate.js"></script>
 
     <script>
-      var map           = null;
-      var marker        = null;
-      var polygon       = null;
-
-      var $map          = document.getElementById('map');
-      var $txtAddress   = document.getElementById('text-address');
-      var $txtLatLang   = document.getElementById('text-latlang');
-      var $btnSubmit    = document.getElementById('submit');
-      var $inputAddress = document.getElementById('address');
+      var map             = null;
+      var marker          = null;
+      var polygon         = null;
+      var geocoder        = null;
+      
+      var $map            = document.getElementById('map');
+      var $txtAddress     = document.getElementById('text-address');
+      var $txtLatLang     = document.getElementById('text-latlang');
+      var $btnSubmit      = document.getElementById('submit');
+      var $inputAddress   = document.getElementById('address');
+      
+      var defaultPosition = {lat: -6.914744, lng: 107.609810};
 
       // var coordinate; @ coordinate.js
 
       function handleInitGoogleMaps() {
         map = new google.maps.Map($map, {
           zoom: 12,
-          center: {lat: -6.914744, lng: 107.609810}
+          center: defaultPosition
         });
 
-        var geocoder = new google.maps.Geocoder();
+        geocoder = new google.maps.Geocoder();
 
+        handleMapsMarker();
+        handleMapsEventListener();
+        handleMapsPolygon();
+
+        handleGeocoderMaps(geocoder, map, 1, defaultPosition);
+
+      }
+
+      function handleMapsEventListener(){
         $btnSubmit.addEventListener('click', function() {
           handleGeocoderMaps(geocoder, map, 2);
         });
@@ -108,11 +122,6 @@
             }
         });
 
-        marker = new google.maps.Marker({
-          map: map,
-          draggable: true,
-        });
-
         google.maps.event.addListener(marker, 'dragend', function() {
 
           var draggerPosition = marker.getPosition();
@@ -120,6 +129,9 @@
           handleGeocoderMaps(geocoder, map, 1, draggerPosition);
 
         });
+      }
+
+      function handleMapsPolygon(){         
 
         polygon = new google.maps.Polygon({
           paths: coordinate,
@@ -132,6 +144,14 @@
 
         polygon.setMap(map);
 
+      }
+
+      function handleMapsMarker(){
+        marker = new google.maps.Marker({
+          map: map,
+          draggable: true,
+          position : defaultPosition,
+        });
       }
 
       function handleGeocoderMaps(geocoder, resultsMap, type, latLng = null) {
