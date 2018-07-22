@@ -73,19 +73,25 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    
+    <script type="text/javascript" src="coordinate.js"></script>
 
     <script>
       var map           = null;
       var marker        = null;
+      var polygon       = null;
+
       var $map          = document.getElementById('map');
       var $txtAddress   = document.getElementById('text-address');
       var $txtLatLang   = document.getElementById('text-latlang');
       var $btnSubmit    = document.getElementById('submit');
       var $inputAddress = document.getElementById('address');
 
+      // var coordinate; @ coordinate.js
+
       function handleInitGoogleMaps() {
         map = new google.maps.Map($map, {
-          zoom: 8,
+          zoom: 12,
           center: {lat: -6.914744, lng: 107.609810}
         });
 
@@ -101,6 +107,16 @@
               handleGeocoderMaps(geocoder, map);
             }
         });
+
+        polygon = new google.maps.Polygon({
+          paths: coordinate,
+          strokeColor: '#FF0000',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#FF0000',
+          fillOpacity: 0.35,
+        });
+        polygon.setMap(map);
 
       }
 
